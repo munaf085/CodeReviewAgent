@@ -25,7 +25,7 @@ export function loadConfig(): Config {
     GROQ_MODEL: process.env.GROQ_MODEL || process.env.INPUT_GROQ_MODEL || 'openai/gpt-oss-120b',
     GROQ_FALLBACK_MODEL: process.env.GROQ_FALLBACK_MODEL || process.env.INPUT_GROQ_FALLBACK_MODEL || 'openai/gpt-oss-20b',
     GROQ_BASE_URL: process.env.GROQ_BASE_URL || process.env.INPUT_GROQ_BASE_URL,
-    MAX_CONCURRENT_REVIEWS: process.env.MAX_CONCURRENT_REVIEWS ? parseInt(process.env.MAX_CONCURRENT_REVIEWS, 10) : 2,
+    MAX_CONCURRENT_REVIEWS: process.env.MAX_CONCURRENT_REVIEWS ? parseInt(process.env.MAX_CONCURRENT_REVIEWS, 10) : 1,
   };
 
   try {
