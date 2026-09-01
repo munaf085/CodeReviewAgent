@@ -47,18 +47,25 @@ async function run() {
   
   const aiProvider = new GroqProvider();
   
+  const { makeLimit } = await import('./utils/concurrency');
+  const limit = makeLimit(config.MAX_CONCURRENT_REVIEWS);
+  
   const allFindings: Finding[] = [];
   let summaryReview: Review | null = null;
 
-  for (const chunk of diffChunks) {
-    const review = await aiProvider.analyzeDiff(chunk);
+  const tasks = diffChunks.map((chunk, index) => limit(async () => {
+    // Large or first chunks get high effort, subsequent ones get medium
+    const reasoningEffort = index === 0 ? 'high' : 'medium';
+    const review = await aiProvider.analyzeDiff(chunk, { reasoningEffort });
     if (review) {
       allFindings.push(...review.findings);
-      if (!summaryReview) {
+      if (!summaryReview && index === 0) {
         summaryReview = review;
       }
     }
-  }
+  }));
+
+  await Promise.all(tasks);
 
   if (!summaryReview) {
     console.log('No review generated.');

@@ -71,17 +71,22 @@ async function run() {
     const validLines = (0, diff_1.extractValidLines)(diffString);
     const diffChunks = (0, chunking_1.chunkDiff)(diffString, config_1.config.MAX_TOKENS);
     const aiProvider = new groq_provider_1.GroqProvider();
+    const { makeLimit } = await Promise.resolve().then(() => __importStar(require('./utils/concurrency')));
+    const limit = makeLimit(config_1.config.MAX_CONCURRENT_REVIEWS);
     const allFindings = [];
     let summaryReview = null;
-    for (const chunk of diffChunks) {
-        const review = await aiProvider.analyzeDiff(chunk);
+    const tasks = diffChunks.map((chunk, index) => limit(async () => {
+        // Large or first chunks get high effort, subsequent ones get medium
+        const reasoningEffort = index === 0 ? 'high' : 'medium';
+        const review = await aiProvider.analyzeDiff(chunk, { reasoningEffort });
         if (review) {
             allFindings.push(...review.findings);
-            if (!summaryReview) {
+            if (!summaryReview && index === 0) {
                 summaryReview = review;
             }
         }
-    }
+    }));
+    await Promise.all(tasks);
     if (!summaryReview) {
         console.log('No review generated.');
         return;
