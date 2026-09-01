@@ -16,7 +16,7 @@ class GroqProvider {
             baseURL: config_1.config.GROQ_BASE_URL,
         });
     }
-    async analyzeDiff(diffChunk, context) {
+    async analyzeDiff(diffChunk, _context) {
         try {
             const response = await this.groq.chat.completions.create({
                 model: config_1.config.GROQ_MODEL,

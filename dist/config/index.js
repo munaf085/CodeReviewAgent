@@ -60,7 +60,7 @@ function loadConfig() {
     }
     catch (error) {
         console.error('Configuration error:', error);
-        throw new Error('Invalid configuration');
+        throw new Error('Invalid configuration', { cause: error });
     }
 }
 exports.config = loadConfig();

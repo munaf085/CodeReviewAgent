@@ -98,7 +98,8 @@ class GitHubComments {
                 });
             }
             catch (e) {
-                console.warn(`Failed to post comment on ${finding.file}:${finding.line}. It may be out of bounds.`, e.message);
+                const errMsg = e instanceof Error ? e.message : String(e);
+                console.warn(`Failed to post comment on ${finding.file}:${finding.line}. It may be out of bounds.`, errMsg);
             }
         }
     }
