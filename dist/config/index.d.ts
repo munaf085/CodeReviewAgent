@@ -1,0 +1,23 @@
+import { z } from 'zod';
+export declare const ConfigSchema: z.ZodObject<{
+    GITHUB_TOKEN: z.ZodDefault<z.ZodString>;
+    GROQ_API_KEY: z.ZodDefault<z.ZodString>;
+    GROQ_MODEL: z.ZodDefault<z.ZodString>;
+    GROQ_BASE_URL: z.ZodOptional<z.ZodString>;
+    MAX_TOKENS: z.ZodDefault<z.ZodNumber>;
+    MIN_CONFIDENCE: z.ZodDefault<z.ZodNumber>;
+    SEVERITY_LEVELS: z.ZodDefault<z.ZodArray<z.ZodString>>;
+    EXCLUDE_PATTERNS: z.ZodDefault<z.ZodArray<z.ZodString>>;
+}, z.core.$strip>;
+export type Config = z.infer<typeof ConfigSchema>;
+export declare function loadConfig(): Config;
+export declare const config: {
+    GITHUB_TOKEN: string;
+    GROQ_API_KEY: string;
+    GROQ_MODEL: string;
+    MAX_TOKENS: number;
+    MIN_CONFIDENCE: number;
+    SEVERITY_LEVELS: string[];
+    EXCLUDE_PATTERNS: string[];
+    GROQ_BASE_URL?: string | undefined;
+};
