@@ -39,7 +39,7 @@ export class GroqProvider implements AIProvider {
           { role: 'user', content: `Review the following diff:\n\n${diffChunk}` }
         ],
         temperature: 0.2,
-        max_tokens: 6500,
+        max_tokens: 4000,
       };
 
       // Add reasoning_effort if defined

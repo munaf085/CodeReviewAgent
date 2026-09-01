@@ -57,6 +57,8 @@ function loadConfig() {
         GROQ_MODEL: process.env.GROQ_MODEL || process.env.INPUT_GROQ_MODEL || 'openai/gpt-oss-120b',
         GROQ_FALLBACK_MODEL: process.env.GROQ_FALLBACK_MODEL || process.env.INPUT_GROQ_FALLBACK_MODEL || 'openai/gpt-oss-20b',
         GROQ_BASE_URL: process.env.GROQ_BASE_URL || process.env.INPUT_GROQ_BASE_URL,
+        MAX_TOKENS: process.env.MAX_TOKENS ? parseInt(process.env.MAX_TOKENS, 10) : 2500,
+        MIN_CONFIDENCE: process.env.MIN_CONFIDENCE ? parseFloat(process.env.MIN_CONFIDENCE) : 0.8,
         MAX_CONCURRENT_REVIEWS: process.env.MAX_CONCURRENT_REVIEWS ? parseInt(process.env.MAX_CONCURRENT_REVIEWS, 10) : 1,
     };
     try {
