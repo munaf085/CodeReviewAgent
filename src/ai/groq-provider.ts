@@ -39,10 +39,9 @@ export class GroqProvider implements AIProvider {
           { role: 'user', content: `Review the following diff:\n\n${diffChunk}` }
         ],
         temperature: 0.2,
-        response_format: { type: 'json_object' },
       };
 
-      // Add reasoning_effort if defined (many SDKs / OSS models ignore it if unsupported, but we pass it as requested)
+      // Add reasoning_effort if defined
       if (options?.reasoningEffort) {
         payload.reasoning_effort = options.reasoningEffort;
       }
@@ -54,8 +53,11 @@ export class GroqProvider implements AIProvider {
         console.log(`[AI] Response received. Tokens -> Prompt: ${usage.prompt_tokens}, Completion: ${usage.completion_tokens}, Total: ${usage.total_tokens}`);
       }
 
-      const content = response.choices[0]?.message?.content;
+      let content = response.choices[0]?.message?.content;
       if (!content) return null;
+
+      // Strip markdown code blocks if the model wrapped the JSON
+      content = content.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
 
       const parsed = JSON.parse(content);
       const validated = ReviewSchema.safeParse(parsed);
