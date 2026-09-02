@@ -38,6 +38,7 @@
     "vitest": "^4.1.11"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "@octokit/rest": "^22.0.1",
     "dotenv": "^17.4.2",
     "groq-sdk": "^1.6.0",

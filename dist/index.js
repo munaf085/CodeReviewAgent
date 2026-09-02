@@ -70,7 +70,16 @@ async function run() {
     const diffString = await (0, github_1.getPRDiff)(octokit, owner, repo, pullNumber);
     const validLines = (0, diff_1.extractValidLines)(diffString);
     const diffChunks = (0, chunking_1.chunkDiff)(diffString, config_1.config.MAX_TOKENS);
-    const aiProvider = new groq_provider_1.GroqProvider();
+    const { GeminiProvider } = await Promise.resolve().then(() => __importStar(require('./ai/gemini-provider')));
+    let aiProvider;
+    if (config_1.config.GEMINI_API_KEY) {
+        aiProvider = new GeminiProvider();
+        console.log(`[AI] Using Gemini Provider with model ${config_1.config.GEMINI_MODEL}`);
+    }
+    else {
+        aiProvider = new groq_provider_1.GroqProvider();
+        console.log(`[AI] Using Groq Provider with model ${config_1.config.GROQ_MODEL}`);
+    }
     const { makeLimit } = await Promise.resolve().then(() => __importStar(require('./utils/concurrency')));
     const limit = makeLimit(config_1.config.MAX_CONCURRENT_REVIEWS);
     const allFindings = [];

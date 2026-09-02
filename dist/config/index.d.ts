@@ -5,6 +5,8 @@ export declare const ConfigSchema: z.ZodObject<{
     GROQ_MODEL: z.ZodDefault<z.ZodString>;
     GROQ_FALLBACK_MODEL: z.ZodDefault<z.ZodString>;
     GROQ_BASE_URL: z.ZodOptional<z.ZodString>;
+    GEMINI_API_KEY: z.ZodOptional<z.ZodString>;
+    GEMINI_MODEL: z.ZodDefault<z.ZodString>;
     MAX_TOKENS: z.ZodDefault<z.ZodNumber>;
     MIN_CONFIDENCE: z.ZodDefault<z.ZodNumber>;
     MAX_CONCURRENT_REVIEWS: z.ZodDefault<z.ZodNumber>;
@@ -18,10 +20,12 @@ export declare const config: {
     GROQ_API_KEY: string;
     GROQ_MODEL: string;
     GROQ_FALLBACK_MODEL: string;
+    GEMINI_MODEL: string;
     MAX_TOKENS: number;
     MIN_CONFIDENCE: number;
     MAX_CONCURRENT_REVIEWS: number;
     SEVERITY_LEVELS: string[];
     EXCLUDE_PATTERNS: string[];
     GROQ_BASE_URL?: string | undefined;
+    GEMINI_API_KEY?: string | undefined;
 };

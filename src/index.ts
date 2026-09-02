@@ -45,7 +45,16 @@ async function run() {
 
   const diffChunks = chunkDiff(diffString, config.MAX_TOKENS);
   
-  const aiProvider = new GroqProvider();
+  const { GeminiProvider } = await import('./ai/gemini-provider');
+  
+  let aiProvider;
+  if (config.GEMINI_API_KEY) {
+    aiProvider = new GeminiProvider();
+    console.log(`[AI] Using Gemini Provider with model ${config.GEMINI_MODEL}`);
+  } else {
+    aiProvider = new GroqProvider();
+    console.log(`[AI] Using Groq Provider with model ${config.GROQ_MODEL}`);
+  }
   
   const { makeLimit } = await import('./utils/concurrency');
   const limit = makeLimit(config.MAX_CONCURRENT_REVIEWS);
