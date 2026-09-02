@@ -30,14 +30,13 @@ export class GitHubComments {
 
   async postInlineComments(findings: Finding[], commitId: string) {
     const existing = await this.getExistingComments();
-    const existingFingerprints = existing.map(c => {
-      const match = c.body.match(/<!-- ai-review:fingerprint=(.*?) -->/);
-      return match ? match[1] : null;
-    }).filter(Boolean);
+    const existingBotComments = existing.filter(c => c.body && c.body.includes('<!-- ai-review:fingerprint='));
+    
+    const newFingerprints = findings.map(f => this.generateFingerprint(f));
 
     for (const finding of findings) {
       const fingerprint = this.generateFingerprint(finding);
-      if (existingFingerprints.includes(fingerprint)) continue;
+      if (existingBotComments.some(c => c.body.includes(`fingerprint=${fingerprint}`))) continue;
 
       let body = `**[${finding.severity.toUpperCase()}] ${finding.title}**\n\n${finding.description}\n\n`;
       if (finding.impact) body += `*Impact*: ${finding.impact}\n`;
@@ -62,6 +61,33 @@ export class GitHubComments {
       } catch (e: unknown) {
         const errMsg = e instanceof Error ? e.message : String(e);
         console.warn(`Failed to post comment on ${finding.file}:${finding.line}. It may be out of bounds.`, errMsg);
+      }
+    }
+
+    // Auto-resolve old comments that are no longer flagged
+    for (const comment of existingBotComments) {
+      const match = comment.body.match(/<!-- ai-review:fingerprint=(.*?) -->/);
+      if (match) {
+        const fp = match[1];
+        if (!newFingerprints.includes(fp)) {
+          // Ensure we haven't already replied resolved to this thread
+          const threadComments = existing.filter(c => c.in_reply_to_id === comment.id || c.id === comment.id);
+          const alreadyResolved = threadComments.some(c => c.body && c.body.includes('✅ This issue appears to be resolved'));
+          
+          if (!alreadyResolved) {
+            try {
+              await this.octokit.pulls.createReplyForReviewComment({
+                owner: this.owner,
+                repo: this.repo,
+                pull_number: this.pullNumber,
+                comment_id: comment.id,
+                body: '✅ This issue appears to be resolved in the latest commits.'
+              });
+            } catch (e) {
+              console.warn('Failed to post resolution reply', e);
+            }
+          }
+        }
       }
     }
   }
