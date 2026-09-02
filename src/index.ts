@@ -76,7 +76,8 @@ async function run() {
 
   await Promise.all(tasks);
 
-  if (!summaryReview) {
+  const finalReview = summaryReview as Review | null;
+  if (!finalReview) {
     console.log('No review generated.');
     return;
   }
@@ -101,7 +102,14 @@ async function run() {
 
   const githubComments = new GitHubComments(octokit, owner, repo, pullNumber);
   await githubComments.postInlineComments(inlineFindings, commitId);
-  await githubComments.postSummary(summaryReview, summaryFindings);
+  await githubComments.postSummary(finalReview, summaryFindings);
+
+  // Auto-Approve logic
+  if (inlineFindings.length === 0 && finalReview.summary.overallRisk === 'low') {
+    await githubComments.submitFormalReview('APPROVE', '✅ AI Code Review passed with no critical issues. Approving this Pull Request!');
+  } else if (inlineFindings.some(f => f.severity === 'critical' || f.severity === 'high')) {
+    await githubComments.submitFormalReview('REQUEST_CHANGES', '❌ AI Code Review found HIGH or CRITICAL issues. Please resolve them before merging.');
+  }
 }
 
 run().catch(error => {

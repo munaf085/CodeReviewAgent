@@ -133,4 +133,30 @@ export class GitHubComments {
       });
     }
   }
+
+  async submitFormalReview(event: 'APPROVE' | 'REQUEST_CHANGES' | 'COMMENT', body: string) {
+    try {
+      // Check if we already left a formal review to avoid spamming
+      const { data: reviews } = await this.octokit.pulls.listReviews({
+        owner: this.owner,
+        repo: this.repo,
+        pull_number: this.pullNumber,
+      });
+      
+      const alreadyApproved = reviews.some(r => r.state === 'APPROVED' && r.user?.login === 'github-actions[bot]');
+      if (event === 'APPROVE' && alreadyApproved) {
+        return; // Already approved, no need to spam
+      }
+
+      await this.octokit.pulls.createReview({
+        owner: this.owner,
+        repo: this.repo,
+        pull_number: this.pullNumber,
+        event,
+        body,
+      });
+    } catch (e) {
+      console.warn('Failed to submit formal review', e);
+    }
+  }
 }
